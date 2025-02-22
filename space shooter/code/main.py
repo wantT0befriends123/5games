@@ -143,8 +143,9 @@ explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png')).c
 laser_sound = pygame.mixer.Sound(join('audio', 'laser.wav'))
 laser_sound.set_volume(0.5)
 explosion_sound = pygame.mixer.Sound(join('audio', 'explosion.wav'))
-damage_sound = pygame.mixer.Sound(join('audio', 'damage.ogg'))
 game_music = pygame.mixer.Sound(join('audio', 'game_music.wav'))
+game_music.set_volume(0.7)
+game_music.play(loops= -1)
 
 #! SPRITES
 all_sprites = pygame.sprite.Group() # sprite group
