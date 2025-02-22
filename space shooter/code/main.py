@@ -88,8 +88,17 @@ class Meteor(pygame.sprite.Sprite):
 class AnimatedExplosion(pygame.sprite.Sprite):
     def __init__(self, frames, pos, groups):
         super().__init__(groups)
-        self.images = frames[0]
-        self.rect = self.image.get_frect(center=pos)
+        self.frames = frames
+        self.frame_index = 0
+        self.image = frames[self.frame_index]
+        self.rect = self.image.get_frect(center = pos)
+
+    def update(self, dt):
+        self.frame_index += 20 * dt
+        if self.frame_index < len(self.frames):
+            self.image = self.frames[int(self.frame_index)]
+        else:
+            self.kill()
 #! --------------------------------- functions -------------------------------- #
 
 def collisions():
@@ -103,6 +112,7 @@ def collisions():
         collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, True)
         if collided_sprites:
             laser.kill()
+            AnimatedExplosion(explosion_frames, laser.rect.midtop, all_sprites)
 
 def display_score():
     current_time = pygame.time.get_ticks() // 100
@@ -121,17 +131,12 @@ pygame.display.set_caption('space shooter') # set caption
 running = True # game loop
 clock = pygame.time.Clock() # clock
 
-# surface (test + useless)
-# surf = pygame.Surface((100, 200))
-# surf.fill('orange')
-# x = 100
-
-#! IMPORT IMAGES
+#! IMPORT
 laser_surf = pygame.image.load(join('images', 'laser.png')).convert_alpha() # import laser image
 meteor_surf = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
 star_surf = pygame.image.load(join('images', 'star.png')).convert_alpha() # import star image
 font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 40) # font
-explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png') for i in range(21))]
+explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
 
 #! SPRITES
 all_sprites = pygame.sprite.Group() # sprite group
