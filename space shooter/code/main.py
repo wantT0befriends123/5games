@@ -2,6 +2,7 @@ import pygame
 from os.path import join
 
 from random import randint, uniform
+import random
 
 #! ---------------------------------- classes --------------------------------- #
 
@@ -55,7 +56,6 @@ class Laser(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_frect(midbottom = pos)
         self.speed = 500
-        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, dt):
         self.rect.centery -= self.speed * dt
@@ -67,23 +67,35 @@ class Meteor(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = surf
         self.rect = self.image.get_frect(center = pos)
-        self.mask = pygame.mask.from_surface(self.image)
         self.start_time = pygame.time.get_ticks()
         self.lifetime = 2000
         self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
         self.speed = randint(400, 500)
+
+        self.original_surf = surf
+        self.rotation_speed = random.choice([randint(-50,-20), randint(20,50)])
+        self.rotation = 0
         
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
         if pygame.time.get_ticks() - self.start_time >= self.lifetime:
             self.kill()
 
+        self.rotation += self.rotation_speed * dt
+        self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
+        self.rect = self.image.get_frect(center = self.rect.center)
+
+class AnimatedExplosion(pygame.sprite.Sprite):
+    def __init__(self, frames, pos, groups):
+        super().__init__(groups)
+        self.images = frames[0]
+        self.rect = self.image.get_frect(center=pos)
 #! --------------------------------- functions -------------------------------- #
 
 def collisions():
     global running
 
-    collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True)
+    collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
         running = False
 
@@ -119,6 +131,7 @@ laser_surf = pygame.image.load(join('images', 'laser.png')).convert_alpha() # im
 meteor_surf = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
 star_surf = pygame.image.load(join('images', 'star.png')).convert_alpha() # import star image
 font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 40) # font
+explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png') for i in range(21))]
 
 #! SPRITES
 all_sprites = pygame.sprite.Group() # sprite group
