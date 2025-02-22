@@ -18,6 +18,9 @@ class Player(pygame.sprite.Sprite):
         self.laser_shoot_time = 0
         self.cooldown_duration = 200
 
+        # mask
+        self.mask = pygame.mask.from_surface(self.image)
+
     def laser_timer(self):
         if not self.can_shoot:
             current_time = pygame.time.get_ticks()
@@ -52,6 +55,7 @@ class Laser(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_frect(midbottom = pos)
         self.speed = 500
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, dt):
         self.rect.centery -= self.speed * dt
@@ -63,11 +67,12 @@ class Meteor(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = surf
         self.rect = self.image.get_frect(center = pos)
+        self.mask = pygame.mask.from_surface(self.image)
         self.start_time = pygame.time.get_ticks()
         self.lifetime = 2000
         self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
         self.speed = randint(400, 500)
-
+        
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
         if pygame.time.get_ticks() - self.start_time >= self.lifetime:
@@ -93,7 +98,7 @@ def display_score():
     text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50))
     display_surface.blit(text_surf, text_rect)
 
-    pygame.draw.rect(display_surface, (240,240,240), text_rect.inflate(20, 20).move(0, -10), 5, 10)
+    pygame.draw.rect(display_surface, (240,240,240), text_rect.inflate(20, 10).move(0, -8), 5, 10)
 
 #! ------------------------------- general setup ------------------------------ #
 pygame.init()
@@ -146,8 +151,8 @@ while running:
 
     # draw game
     display_surface.fill('#3a2e3f')
-    all_sprites.draw(display_surface)
     display_score()
+    all_sprites.draw(display_surface)
 
     pygame.display.update()
 
